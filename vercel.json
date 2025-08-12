@@ -1,8 +1,12 @@
 {
-	"version": 3,
-	"framework": "angular",
-	"buildCommand": "npm run build",
-	"outputDirectory": "dist/gui",
+	"version": 2,
+	"builds": [
+		{
+			"src": "angular.json",
+			"use": "@vercel/static-build",
+			"config": { "distDir": "dist/gui" }
+		}
+	],
 	"routes": [
 		{ "src": "/assets/(.*)", "dest": "/assets/$1" },
 		{ "src": "/(.*)", "dest": "/index.html" }
