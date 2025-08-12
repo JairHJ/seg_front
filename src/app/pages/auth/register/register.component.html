@@ -1,0 +1,60 @@
+<!-- app/register/register.component.html -->
+<div class="login-container">
+  <p-toast position="top-right"></p-toast>
+  <p-card [style]="cardStyles">
+    <ng-template #header>
+      <div class="header-circle-container">
+        <div class="user-icon-circle">
+          <i class="pi pi-user user-icon"></i>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template #title>
+      <div class="login-title">Register</div>
+    </ng-template>
+
+    <div class="form-fields">
+      <div class="label">Nombre de usuario</div>
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="pi pi-user"></i>
+        </p-inputgroup-addon>
+        <input pInputText [(ngModel)]="username" placeholder="Username" />
+      </p-inputgroup>
+
+      <div class="label">Contraseña</div>
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="pi pi-lock"></i>
+        </p-inputgroup-addon>
+        <input pInputText type="password" [(ngModel)]="password" placeholder="Contraseña" />
+      </p-inputgroup>
+
+      <div class="label">Confirmar Contraseña</div>
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="pi pi-lock"></i>
+        </p-inputgroup-addon>
+        <input pInputText type="password" [(ngModel)]="confirmPassword" placeholder="Contraseña" />
+      </p-inputgroup>
+    </div>
+
+    <ng-template #footer>
+      <div class="login-buttons">
+        <p-button
+          label="Login"
+          severity="secondary"
+          [outlined]="true"
+          [ngClass]="'w-full p-button-outlined'"
+          routerLink="/auth/login"
+        ></p-button>
+        <p-button
+          (click)="register()"
+          label="Register"
+          [ngClass]="'w-full'"
+        ></p-button>
+      </div>
+    </ng-template>
+  </p-card>
+</div>

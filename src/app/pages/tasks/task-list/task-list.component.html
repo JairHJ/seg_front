@@ -1,0 +1,109 @@
+<div class="task-board">
+      <div class="board-header">
+        <h1 class="text-3xl font-bold text-primary mb-3">Tu Tablero</h1>
+        <p-button 
+          label="Nueva Tarea" 
+          icon="pi pi-plus" 
+          routerLink="/tasks/create"
+          styleClass="mb-4">
+        </p-button>
+      </div>
+
+      <div class="board-columns" *ngIf="!loading(); else loadingTemplate">
+        <div class="status-column" *ngFor="let status of taskStatuses">
+          <div class="column-header">
+            <h3 class="column-title">{{ statusLabels[status] }}</h3>
+            <span class="task-count">{{ getTasksByStatus(status).length }}</span>
+          </div>
+          
+          <div class="tasks-container">
+            <div class="task-card" *ngFor="let task of getTasksByStatus(status)">
+              <p-card>
+                <ng-template pTemplate="header">
+                  <div class="card-header">
+                    <p-tag 
+                      [value]="statusLabels[task.status]"
+                      [severity]="statusColors[task.status]"
+                      styleClass="mb-2">
+                    </p-tag>
+                    <p-tag 
+                      [value]="task.is_alive ? 'Activa' : 'Inactiva'"
+                      [severity]="task.is_alive ? 'success' : 'danger'"
+                      styleClass="mb-2 ml-2">
+                    </p-tag>
+                  </div>
+                </ng-template>
+                
+                <div class="card-content">
+                  <h4 class="task-title">{{ task.name }}</h4>
+                  <p class="task-description">{{ task.description }}</p>
+                  
+                  <div class="task-dates">
+                    <div class="date-item">
+                      <span class="date-label">Creado:</span>
+                      <span class="date-value">{{ formatDate(task.created_at) }}</span>
+                    </div>
+                    <div class="date-item">
+                      <span class="date-label">Vence:</span>
+                      <span class="date-value" [class.overdue]="isOverdue(task.dead_line)">
+                        {{ formatDate(task.dead_line) }}
+                      </span>
+                    </div>
+                    <div class="date-item">
+                      <span class="date-label">Creado por:</span>
+                      <span class="date-value">{{ task.created_by }}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <ng-template pTemplate="footer">
+                  <div class="card-actions">
+                    <p-button 
+                      icon="pi pi-pencil" 
+                      [text]="true"
+                      severity="secondary" 
+                      [routerLink]="['/tasks/edit', task.id]"
+                      pTooltip="Editar">
+                    </p-button>
+                    
+                    <p-button 
+                      [icon]="task.is_alive ? 'pi pi-pause' : 'pi pi-play'" 
+                      [text]="true"
+                      severity="secondary"
+                      (click)="toggleTaskStatus(task)"
+                      [pTooltip]="task.is_alive ? 'Desactivar' : 'Activar'">
+                    </p-button>
+                    
+                    <p-button 
+                      icon="pi pi-trash" 
+                      [text]="true"
+                      severity="danger" 
+                      (click)="confirmDelete(task)"
+                      pTooltip="Eliminar">
+                    </p-button>
+                  </div>
+                </ng-template>
+              </p-card>
+            </div>
+            
+            <div class="empty-column" *ngIf="getTasksByStatus(status).length === 0">
+              <i class="pi pi-inbox text-4xl text-300"></i>
+              <p class="text-500">No hay tareas en {{ statusLabels[status].toLowerCase() }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #loadingTemplate>
+        <div class="board-columns">
+          <div class="status-column" *ngFor="let i of [1,2,3,4,5]">
+            <p-skeleton width="100%" height="3rem" styleClass="mb-2"></p-skeleton>
+            <p-skeleton width="100%" height="10rem" styleClass="mb-2"></p-skeleton>
+            <p-skeleton width="100%" height="10rem" styleClass="mb-2"></p-skeleton>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+
+    <p-toast></p-toast>
+    <p-confirmDialog></p-confirmDialog>

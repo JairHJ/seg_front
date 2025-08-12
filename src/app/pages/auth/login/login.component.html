@@ -1,0 +1,56 @@
+<!-- Contenedor centrado -->
+<div class="login-container">
+  <p-toast position="top-right"></p-toast> <!-- Añadir p-toast para mostrar alertas -->
+  <p-card [style]="cardStyles">
+    <!-- Header con ícono en círculo -->
+    <ng-template #header>
+      <div class="header-circle-container">
+        <div class="user-icon-circle">
+          <i class="pi pi-user user-icon"></i>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- Título -->
+    <ng-template #title>
+      <div class="login-title">Login</div>
+    </ng-template>
+
+    <!-- Inputs -->
+    <div class="form-fields">
+      <!-- Usuario -->
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="pi pi-user"></i>
+        </p-inputgroup-addon>
+        <input pInputText [(ngModel)]="username" placeholder="Username" />
+      </p-inputgroup>
+
+      <!-- Contraseña -->
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="pi pi-lock"></i>
+        </p-inputgroup-addon>
+        <input pInputText type="password" [(ngModel)]="password" placeholder="Contraseña" />
+      </p-inputgroup>
+    </div>
+
+    <!-- Botones -->
+    <ng-template #footer>
+      <div class="login-buttons">
+        <p-button
+          (click)="login()"
+          label="Login"
+          severity="secondary"
+          [outlined]="true"
+          [ngClass]="'w-full p-button-outlined'"
+        ></p-button>
+        <p-button
+          label="Register"
+          [ngClass]="'w-full'"
+          routerLink="/auth/register"
+        ></p-button>
+      </div>
+    </ng-template>
+  </p-card>
+</div>

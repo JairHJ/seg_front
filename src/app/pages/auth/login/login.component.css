@@ -1,0 +1,117 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: transparent;
+  padding: 1rem;
+}
+
+.header-circle-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem 0;
+}
+
+.user-icon-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7c77c6 0%, #9b59b6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px rgba(124, 119, 198, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-icon {
+  font-size: 2.5rem;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.login-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #e6edf3;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.login-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+/* Estilos para la tarjeta principal */
+:host ::ng-deep .p-card {
+  background: rgba(22, 27, 34, 0.95);
+  border: 1px solid rgba(48, 54, 61, 0.8);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+}
+
+:host ::ng-deep .p-card .p-card-body {
+  padding: 2rem;
+}
+
+/* Estilos para los inputs */
+:host ::ng-deep .p-inputtext {
+  background: rgba(48, 54, 61, 0.8);
+  border: 1px solid rgba(48, 54, 61, 0.8);
+  color: #e6edf3;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+}
+
+:host ::ng-deep .p-inputtext:focus {
+  border-color: #7c77c6;
+  box-shadow: 0 0 0 3px rgba(124, 119, 198, 0.2);
+  background: rgba(48, 54, 61, 0.9);
+}
+
+:host ::ng-deep .p-inputtext::placeholder {
+  color: #8b949e;
+}
+
+/* Estilos para los botones */
+:host ::ng-deep .p-button.p-button-outlined {
+  border: 2px solid #7c77c6;
+  color: #7c77c6;
+  background: transparent;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+:host ::ng-deep .p-button.p-button-outlined:hover {
+  background: #7c77c6;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(124, 119, 198, 0.3);
+}
+
+:host ::ng-deep .p-button:not(.p-button-outlined) {
+  background: linear-gradient(135deg, #7c77c6 0%, #9b59b6 100%);
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+:host ::ng-deep .p-button:not(.p-button-outlined):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(124, 119, 198, 0.4);
+}

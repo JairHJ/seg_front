@@ -1,0 +1,155 @@
+<div class="task-create-container">
+  <p-toast></p-toast>
+
+  <p-card>
+    <ng-template #header>
+      <div class="card-header">
+        <h2>{{ isEditMode ? 'Editar Tarea' : 'Nueva Tarea' }}</h2>
+        <p-button 
+          label="Volver a Lista" 
+          icon="pi pi-arrow-left" 
+          routerLink="/tasks/list"
+          styleClass="p-button-outlined">
+        </p-button>
+      </div>
+    </ng-template>
+
+    <form (ngSubmit)="onSubmit()" #taskForm="ngForm" class="task-form">
+      <div class="form-grid">
+        <!-- Nombre de la tarea -->
+        <div class="field">
+          <label for="name" class="field-label">
+            Nombre de la Tarea <span class="required">*</span>
+          </label>
+          <input 
+            pInputText 
+            id="name"
+            name="name"
+            [(ngModel)]="task.name" 
+            required
+            placeholder="Ingresa el nombre de la tarea"
+            class="w-full"
+            [class.ng-invalid]="taskForm.submitted && !task.name.trim()" />
+        </div>
+
+        <!-- Descripción -->
+        <div class="field">
+          <label for="description" class="field-label">
+            Descripción <span class="required">*</span>
+          </label>
+          <textarea 
+            pInputTextarea 
+            id="description"
+            name="description"
+            [(ngModel)]="task.description" 
+            required
+            placeholder="Describe la tarea en detalle"
+            rows="4"
+            class="w-full"
+            [class.ng-invalid]="taskForm.submitted && !task.description.trim()">
+          </textarea>
+        </div>
+
+        <!-- Estado -->
+        <div class="field">
+          <label for="status" class="field-label">
+            Estado <span class="required">*</span>
+          </label>
+          <p-dropdown 
+            id="status"
+            name="status"
+            [(ngModel)]="task.status"
+            [options]="statusOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Selecciona el estado"
+            class="w-full">
+          </p-dropdown>
+        </div>
+
+        <!-- Creado por -->
+        <div class="field">
+          <label for="created_by" class="field-label">
+            Creado por <span class="required">*</span>
+          </label>
+          <input 
+            pInputText 
+            id="created_by"
+            name="created_by"
+            [(ngModel)]="task.created_by" 
+            required
+            placeholder="Nombre del creador"
+            class="w-full"
+            [class.ng-invalid]="taskForm.submitted && !task.created_by.trim()" />
+        </div>
+
+        <!-- Fecha de creación -->
+        <div class="field">
+          <label for="created_at" class="field-label">
+            Fecha de Creación <span class="required">*</span>
+          </label>
+          <p-calendar 
+            id="created_at"
+            name="created_at"
+            [(ngModel)]="createdAtDate"
+            (ngModelChange)="onCreatedAtChange()"
+            [showIcon]="true"
+            dateFormat="dd/mm/yy"
+            placeholder="Selecciona la fecha de creación"
+            class="w-full">
+          </p-calendar>
+        </div>
+
+        <!-- Fecha límite -->
+        <div class="field">
+          <label for="dead_line" class="field-label">
+            Fecha Límite <span class="required">*</span>
+          </label>
+          <p-calendar 
+            id="dead_line"
+            name="dead_line"
+            [(ngModel)]="deadLineDate"
+            (ngModelChange)="onDeadLineChange()"
+            [showIcon]="true"
+            dateFormat="dd/mm/yy"
+            placeholder="Selecciona la fecha límite"
+            class="w-full">
+          </p-calendar>
+        </div>
+
+        <!-- Estado activo -->
+        <div class="field checkbox-field">
+          <p-checkbox 
+            id="is_alive"
+            name="is_alive"
+            [(ngModel)]="task.is_alive"
+            [binary]="true">
+          </p-checkbox>
+          <label for="is_alive" class="checkbox-label">
+            Tarea activa
+          </label>
+        </div>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="form-actions">
+        <p-button 
+          type="button"
+          label="Cancelar" 
+          icon="pi pi-times" 
+          (onClick)="onCancel()"
+          styleClass="p-button-outlined p-button-secondary">
+        </p-button>
+        
+        <p-button 
+          type="submit"
+          [label]="submitButtonLabel" 
+          icon="pi pi-check" 
+          [loading]="loading"
+          [disabled]="!isFormValid()"
+          styleClass="p-button-success">
+        </p-button>
+      </div>
+    </form>
+  </p-card>
+</div>
