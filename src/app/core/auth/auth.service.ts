@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, catchError, of } from 'rxjs';
+import { environment } from '../../../environments/environment.prod';
 import { Usuario, LoginResponse, RegisterResponse, AuthError } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:5000/auth'; // Proxy Flask
+  private apiUrl = environment.API_URL_AUTH;
 
   constructor(private http: HttpClient) {}
 
