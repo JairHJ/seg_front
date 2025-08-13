@@ -37,23 +37,29 @@ export class AuthService {
       username: (userData.username || '').trim(),
       email: (userData.email || '').trim().toLowerCase()
     };
-  return this.http.post<RegisterResponse>(`${this.apiUrl}/register`, payload).pipe(
-      map(response => {
-        if (response.error) {
-            return { success: false, error: response.error, code: (response as any).code };
+  return this.http.post<any>(`${this.apiUrl}/register`, payload).pipe(
+      map(raw => {
+        // Debug: mostrar crudo (eliminar después)
+        try { console.log('[AuthService] raw register response:', raw); } catch {}
+
+        // Unificar formato si viene anidado (proxied_response) o directo
+        const response = raw?.proxied_response ? raw.proxied_response : raw;
+
+        // Estructuras posibles de error
+        if (response?.error) {
+          return { success: false, error: response.error, code: response.code };
         }
-        if (response.access_token && response.user) {
-          // Guardar token opcionalmente tras registro
-          this.setToken(response.access_token);
-          localStorage.setItem('currentUser', JSON.stringify(response.user));
-          return {
-            success: true,
-            token: response.access_token,
-            user: response.user,
-            qr_code: response.qr_code
-          };
+
+        const accessToken = response?.access_token || response?.token || response?.jwt;
+        const user = response?.user;
+        const qr = response?.qr_code || response?.qr || response?.mfa_qr;
+
+        if (accessToken && user) {
+          this.setToken(accessToken);
+          localStorage.setItem('currentUser', JSON.stringify(user));
+          return { success: true, token: accessToken, user, qr_code: qr };
         }
-        return { success: false, error: 'Respuesta de backend inválida' };
+        return { success: false, error: 'Formato de respuesta no reconocido' };
       }),
       catchError((error) => {
         const errorMsg = error.error?.error || 'Error al registrar usuario';
