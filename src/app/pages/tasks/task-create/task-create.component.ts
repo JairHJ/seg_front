@@ -124,7 +124,7 @@ import { Task, TaskCreateRequest, TASK_STATUSES, TASK_STATUS_LABELS, TaskStatus 
             </div>
 
             <div class="col-12 md:col-6">
-              <div class="field">
+              <div class="field" *ngIf="false">
                 <label for="created_by" class="required">Creado por</label>
                 <input 
                   pInputText 
@@ -132,12 +132,7 @@ import { Task, TaskCreateRequest, TASK_STATUSES, TASK_STATUS_LABELS, TaskStatus 
                   formControlName="created_by"
                   class="w-full"
                   [readonly]="true"
-                  [class.ng-invalid]="taskForm.get('created_by')?.invalid && taskForm.get('created_by')?.touched"
                   placeholder="Nombre del creador" />
-                
-                <ng-container *ngIf="taskForm.get('created_by')?.invalid && taskForm.get('created_by')?.touched">
-                  <small class="p-error">El campo 'Creado por' es requerido</small>
-                </ng-container>
               </div>
             </div>
 
@@ -249,7 +244,7 @@ export class TaskCreateComponent implements OnInit {
     dead_line: [new Date(), [Validators.required]],
     status: ['InProgress', [Validators.required]],
     is_alive: [true],
-    created_by: ['', [Validators.required]]
+    created_by: [''] // deprecated, oculto
   });
 
   ngOnInit() {
@@ -314,7 +309,7 @@ export class TaskCreateComponent implements OnInit {
         dead_line: this.formatDate(formValue.dead_line),
         status: formValue.status,
         is_alive: formValue.is_alive,
-        created_by: formValue.created_by
+        created_by: '' as any // backend lo setea; compatibilidad con interfaz
       };
 
       const operation = this.isEditMode() 

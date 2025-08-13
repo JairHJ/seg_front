@@ -118,3 +118,24 @@
 .api-table tr:hover {
 	background: #263043;
 }
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+}
+.status-codes-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin: 0.5rem 0 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9rem;
+}
+.status-codes-legend li b { color: #90caf9; }
+@media (max-width: 1000px) {
+  .chart-box-wide { min-width: 0; }
+  .dashlogs-container { padding: 1rem; }
+  .api-table th, .api-table td { white-space: nowrap; }
+}
