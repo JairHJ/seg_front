@@ -39,6 +39,7 @@ export class AuthService {
     };
   return this.http.post<any>(`${this.apiUrl}/register`, payload).pipe(
       map(raw => {
+        debugger;
         // Debug: mostrar crudo (eliminar después)
         try { console.log('[AuthService] raw register response:', raw); } catch {}
 
