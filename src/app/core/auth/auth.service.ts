@@ -46,21 +46,24 @@ export class AuthService {
         // Unificar formato si viene anidado (proxied_response) o directo
         const response = raw?.proxied_response ? raw.proxied_response : raw;
 
-        // Estructuras posibles de error
-        if (response?.error) {
+        // Si backend indica error explícito
+        if (response && typeof response === 'object' && 'error' in response && !('access_token' in response || 'user' in response)) {
           return { success: false, error: response.error, code: response.code };
         }
 
-        const accessToken = response?.access_token || response?.token || response?.jwt;
         const user = response?.user;
-        const qr = response?.qr_code || response?.qr || response?.mfa_qr;
+        const accessToken = response?.access_token || response?.token || null;
+        const qr = response?.qr_code || response?.qr || null;
 
-        if (accessToken && user) {
-          this.setToken(accessToken);
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          return { success: true, token: accessToken, user, qr_code: qr };
+        // Criterio relajado: si hay user ya consideramos éxito (token opcional)
+        if (user) {
+          if (accessToken) {
+            try { this.setToken(accessToken); } catch {}
+          }
+            try { localStorage.setItem('currentUser', JSON.stringify(user)); } catch {}
+          return { success: true, token: accessToken || undefined, user, qr_code: qr || undefined };
         }
-        return { success: false, error: 'Formato de respuesta no reconocido' };
+        return { success: false, error: 'Respuesta sin user' };
       }),
       catchError((error) => {
         const errorMsg = error.error?.error || 'Error al registrar usuario';
