@@ -31,7 +31,7 @@ export class DashLogsComponent implements OnInit {
     return Array.from(new Set(this.allLogs.map(log => String(log.status_code)).filter(Boolean)));
   }
   get filteredLogs(): any[] {
-    return this.allLogs.filter(log => {
+  const filtered = this.allLogs.filter(log => {
       const date = new Date(log.timestamp || log.date || log.time);
       const from = this.filterDateFrom ? new Date(this.filterDateFrom) : null;
       const to = this.filterDateTo ? new Date(this.filterDateTo) : null;
@@ -43,6 +43,7 @@ export class DashLogsComponent implements OnInit {
         (!to || date <= to)
       );
     });
+  return this.sortLogs(filtered);
   }
   getStatusDescription(code: any): string {
     return this.statusDescriptions[String(code)] || 'Otro';
@@ -54,6 +55,8 @@ export class DashLogsComponent implements OnInit {
   apiTable: { api: string, count: number, avg: number }[] = [];
   apiBarChartData: ChartData<'bar'> = { labels: [], datasets: [{ data: [], label: 'Llamadas por API' }] };
   allLogs: any[] = [];
+  sortField: string = 'timestamp';
+  sortDir: 'asc' | 'desc' = 'desc';
   statusDescriptions: { [code: string]: string } = {
     '200': 'Exitoso',
     '201': 'Creado',
@@ -87,5 +90,48 @@ export class DashLogsComponent implements OnInit {
     this.logsService.getAllLogs().subscribe(logs => {
       this.allLogs = logs;
     });
+  }
+
+  get avgResponseSeconds(): string {
+    if (!this.summary || !this.summary.avg_duration_ms) return '-';
+    return (this.summary.avg_duration_ms / 1000).toFixed(3);
+  }
+
+  get fastestApi(): string { return this.summary?.fastest_api || '-'; }
+  get slowestApi(): string { return this.summary?.slowest_api || '-'; }
+  get mostUsedApi(): string { return this.summary?.most_used_api || '-'; }
+  get leastUsedApi(): string { return this.summary?.least_used_api || '-'; }
+
+  setSort(field: string) {
+    if (this.sortField === field) {
+      this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortField = field;
+      this.sortDir = field === 'timestamp' ? 'desc' : 'asc';
+    }
+  }
+
+  sortIndicator(field: string): string {
+    if (this.sortField !== field) return '';
+    return this.sortDir === 'asc' ? '▲' : '▼';
+  }
+
+  private sortLogs(data: any[]): any[] {
+    const dir = this.sortDir === 'asc' ? 1 : -1;
+    return [...data].sort((a, b) => {
+      const va = this.getValueForSort(a, this.sortField);
+      const vb = this.getValueForSort(b, this.sortField);
+      if (va == null && vb == null) return 0;
+      if (va == null) return -1 * dir;
+      if (vb == null) return 1 * dir;
+      if (va < vb) return -1 * dir;
+      if (va > vb) return 1 * dir;
+      return 0;
+    });
+  }
+
+  private getValueForSort(row: any, field: string): any {
+    if (field === 'timestamp') return new Date(row.timestamp).getTime();
+    return row[field];
   }
 }

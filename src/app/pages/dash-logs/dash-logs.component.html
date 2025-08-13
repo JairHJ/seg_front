@@ -4,11 +4,11 @@
   <div *ngIf="summary">
     <div class="summary-cards">
       <div class="card highlight">Total logs: <b>{{ summary.total_logs }}</b></div>
-      <div class="card">Promedio Response Time: <b>{{ summary.avg_response_time }} s</b></div>
-      <div class="card">API más rápida: <b>{{ summary.api_mas_rapida }}</b></div>
-      <div class="card">API más lenta: <b>{{ summary.api_mas_lenta }}</b></div>
-      <div class="card">API más consumida: <b>{{ summary.api_mas_consumida }}</b></div>
-      <div class="card">API menos consumida: <b>{{ summary.api_menos_consumida }}</b></div>
+      <div class="card">Promedio Response Time: <b>{{ avgResponseSeconds }} s</b></div>
+      <div class="card">API más rápida: <b>{{ fastestApi }}</b></div>
+      <div class="card">API más lenta: <b>{{ slowestApi }}</b></div>
+      <div class="card">API más consumida: <b>{{ mostUsedApi }}</b></div>
+      <div class="card">API menos consumida: <b>{{ leastUsedApi }}</b></div>
     </div>
 
     <div class="charts-row">
@@ -71,20 +71,24 @@
       <table class="api-table">
         <thead>
           <tr>
-            <th>Fecha</th>
-            <th>API</th>
-            <th>Status</th>
+            <th (click)="setSort('timestamp')">Fecha {{ sortIndicator('timestamp') }}</th>
+            <th (click)="setSort('api_name')">API {{ sortIndicator('api_name') }}</th>
+            <th (click)="setSort('method')">Método {{ sortIndicator('method') }}</th>
+            <th (click)="setSort('path')">Path {{ sortIndicator('path') }}</th>
+            <th (click)="setSort('status_code')">Status {{ sortIndicator('status_code') }}</th>
             <th>Descripción</th>
-            <th>Duración (s)</th>
+            <th (click)="setSort('duration_ms')">Duración (s) {{ sortIndicator('duration_ms') }}</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let log of filteredLogs">
-            <td>{{ log.timestamp || log.date || log.time }}</td>
+            <td>{{ log.timestamp | date:'yyyy-MM-dd HH:mm:ss':'UTC' }}</td>
             <td>{{ log.api_name }}</td>
+            <td>{{ log.method }}</td>
+            <td>{{ log.path }}</td>
             <td>{{ log.status_code }}</td>
             <td>{{ statusDescriptions[log.status_code?.toString()] || 'Otro' }}</td>
-            <td>{{ log.duration | number:'1.3-3' }}</td>
+            <td>{{ (log.duration_ms || 0) / 1000 | number:'1.3-3' }}</td>
           </tr>
         </tbody>
       </table>
