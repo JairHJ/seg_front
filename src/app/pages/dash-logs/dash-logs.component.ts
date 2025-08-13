@@ -51,7 +51,8 @@ export class DashLogsComponent implements OnInit {
   summary: any;
   statusChartData: ChartData<'bar'> = { labels: [], datasets: [{ data: [], label: 'Respuestas por Status' }] };
   statusChartType: 'bar' = 'bar';
-  statusCodesToShow: string[] = ['200', '201', '401', '404'];
+  // Incluir explícitamente 500 porque el requerimiento menciona mostrar códigos 200, 404, 500, etc.
+  statusCodesToShow: string[] = ['200', '201', '401', '404', '500'];
   apiTable: { api: string, count: number, avg: number }[] = [];
   apiBarChartData: ChartData<'bar'> = { labels: [], datasets: [{ data: [], label: 'Llamadas por API' }] };
   allLogs: any[] = [];
