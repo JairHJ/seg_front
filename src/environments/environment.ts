@@ -4,8 +4,10 @@
 // por lo que las URLs deben definirse aquí en build time.
 export const environment = {
 	production: false,
-	API_URL_AUTH: 'https://auth-service-mjjn.onrender.com',
-	API_URL_USER: 'https://user-service-5xkj.onrender.com',
+	// Unificación: todas las llamadas pasan por el gateway para centralizar logs
 	API_URL_GATEWAY: 'https://api-gateway-3pnq.onrender.com',
-	API_URL_TASK: 'https://task-service-ss1h.onrender.com'
+	// Alias (ya no se usan directamente en código tras refactor)
+	API_URL_AUTH: 'https://api-gateway-3pnq.onrender.com',
+	API_URL_USER: 'https://api-gateway-3pnq.onrender.com',
+	API_URL_TASK: 'https://api-gateway-3pnq.onrender.com'
 };

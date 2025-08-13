@@ -8,7 +8,8 @@ import { Usuario, LoginResponse, RegisterResponse, AuthError } from '../models/u
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = environment.API_URL_AUTH;
+  // Ahora todas las rutas de auth se consumen vía gateway (/auth/*)
+  private apiUrl = environment.API_URL_GATEWAY + '/auth';
 
   constructor(private http: HttpClient) {}
 
@@ -19,7 +20,7 @@ export class AuthService {
       username: (userData.username || '').trim(),
       email: (userData.email || '').trim().toLowerCase()
     };
-    return this.http.post<RegisterResponse>(`${this.apiUrl}/register`, payload).pipe(
+  return this.http.post<RegisterResponse>(`${this.apiUrl}/register`, payload).pipe(
       map(response => {
         if (response.error) {
             return { success: false, error: response.error, code: (response as any).code };
@@ -46,7 +47,7 @@ export class AuthService {
   }
 
   login(credentials: Usuario): Observable<{success: boolean, token?: string, user?: any, error?: string}> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
+  return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
       map(response => {
         if (response.error) {
           return { success: false, error: response.error };

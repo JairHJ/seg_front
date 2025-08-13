@@ -85,10 +85,12 @@ export class DashLogsComponent implements OnInit {
         labels: allCodes,
         datasets: [{ data: dataArr, label: 'Respuestas por Status' }]
       };
+  this.tryComputeFallbackMetrics();
     });
     // Obtener todos los logs históricos
     this.logsService.getAllLogs().subscribe(logs => {
       this.allLogs = logs;
+  this.tryComputeFallbackMetrics();
     });
   }
 
@@ -133,5 +135,34 @@ export class DashLogsComponent implements OnInit {
   private getValueForSort(row: any, field: string): any {
     if (field === 'timestamp') return new Date(row.timestamp).getTime();
     return row[field];
+  }
+
+  private tryComputeFallbackMetrics() {
+    if (!this.summary || !this.allLogs.length) return;
+    // Si el backend ya trae métricas nuevas, no recalculamos
+    if (this.summary.fastest_api || this.summary.avg_duration_ms !== undefined) return;
+    const perApi: Record<string, {count: number; totalMs: number}> = {};
+    let totalDuration = 0;
+    for (const log of this.allLogs) {
+      const api = log.api_name || 'root';
+      const ms = log.duration_ms ?? (log.duration ? log.duration * 1000 : 0);
+      totalDuration += ms;
+      perApi[api] = perApi[api] || {count: 0, totalMs: 0};
+      perApi[api].count += 1; perApi[api].totalMs += ms;
+    }
+    const apiEntries = Object.entries(perApi).map(([k,v]) => ({api: k, count: v.count, avg: v.totalMs / v.count}));
+    if (!apiEntries.length) return;
+    apiEntries.sort((a,b)=>a.avg-b.avg);
+    const fastest = apiEntries[0].api;
+    const slowest = apiEntries[apiEntries.length-1].api;
+    apiEntries.sort((a,b)=>b.count-a.count);
+    const most = apiEntries[0].api;
+    const least = apiEntries[apiEntries.length-1].api;
+    const avgOverall = totalDuration / this.allLogs.length;
+    this.summary.fastest_api = fastest;
+    this.summary.slowest_api = slowest;
+    this.summary.most_used_api = most;
+    this.summary.least_used_api = least;
+    this.summary.avg_duration_ms = Math.round(avgOverall * 100) / 100;
   }
 }
