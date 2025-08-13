@@ -19,9 +19,7 @@ export interface TaskResponse {
   };
 }
 
-export interface TaskProxyResponse {
-  proxied_response: TaskResponse;
-}
+// Eliminamos envoltorio proxied_response: backend ya devuelve TaskResponse directo
 
 export interface TaskCreateRequest {
   name: string;

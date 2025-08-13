@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, catchError, of } from 'rxjs';
-import { environment } from '../../../environments/environment.prod';
+import { environment } from '../../../environments/environment';
 import { Usuario, LoginResponse, RegisterResponse, AuthError } from '../models/user.model';
 
 @Injectable({
@@ -15,18 +15,24 @@ export class AuthService {
   register(userData: Usuario): Observable<{success: boolean, token?: string, user?: any, qr_code?: string, error?: string}> {
     return this.http.post<RegisterResponse>(`${this.apiUrl}/register`, userData).pipe(
       map(response => {
-        // El registro ahora solo devuelve información del usuario y QR code
-        if (response.proxied_response.user) {
+        if (response.error) {
+            return { success: false, error: response.error };
+        }
+        if (response.access_token && response.user) {
+          // Guardar token opcionalmente tras registro
+          this.setToken(response.access_token);
+          localStorage.setItem('currentUser', JSON.stringify(response.user));
           return {
             success: true,
-            user: response.proxied_response.user,
-            qr_code: response.proxied_response.qr_code // QR code para MFA
+            token: response.access_token,
+            user: response.user,
+            qr_code: response.qr_code
           };
         }
-        return { success: false, error: 'Error en el registro' };
+        return { success: false, error: 'Respuesta de backend inválida' };
       }),
       catchError((error) => {
-        const errorMsg = error.error?.proxied_response?.error || 'Error al registrar usuario';
+        const errorMsg = error.error?.error || 'Error al registrar usuario';
         return of({ success: false, error: errorMsg });
       })
     );
@@ -35,25 +41,18 @@ export class AuthService {
   login(credentials: Usuario): Observable<{success: boolean, token?: string, user?: any, error?: string}> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
       map(response => {
-        if (response.proxied_response.access_token) {
-          this.setToken(response.proxied_response.access_token);
-          // Guardar información del usuario
-          localStorage.setItem('currentUser', JSON.stringify(response.proxied_response.user));
-          return {
-            success: true,
-            token: response.proxied_response.access_token,
-            user: response.proxied_response.user
-          };
+        if (response.error) {
+          return { success: false, error: response.error };
         }
-        // Si hay error explícito en la respuesta
-        if (response.proxied_response.error) {
-          return { success: false, error: response.proxied_response.error };
+        if (response.access_token && response.user) {
+          this.setToken(response.access_token);
+          localStorage.setItem('currentUser', JSON.stringify(response.user));
+          return { success: true, token: response.access_token, user: response.user };
         }
-        return { success: false, error: 'Error en el login' };
+        return { success: false, error: 'Respuesta de backend inválida' };
       }),
       catchError((error) => {
-        // Mostrar siempre el mensaje real del backend si existe
-        const errorMsg = error.error?.proxied_response?.error || error.error?.error || 'Error al iniciar sesión';
+        const errorMsg = error.error?.error || 'Error al iniciar sesión';
         return of({ success: false, error: errorMsg });
       })
     );

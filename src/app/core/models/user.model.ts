@@ -5,44 +5,43 @@ export interface Usuario {
   otp_code?: string; // Para MFA
 }
 
+// Respuestas DIRECTAS del backend (ya no usamos envoltorio proxied_response)
 export interface LoginResponse {
-  proxied_response: {
-    access_token?: string;
-    token_type?: string;
-    user?: {
-      id: number;
-      username: string;
-    };
-    error?: string;
+  access_token?: string;
+  token_type?: string;
+  user?: {
+    id: string;
+    username: string;
   };
+  error?: string;
 }
 
 export interface RegisterResponse {
-  proxied_response: {
-    message: string;
-    access_token: string;
-    token_type: string;
-    qr_code?: string; // QR para MFA
-    user: {
-      id: number;
-      username: string;
-      email: string;
-    };
+  message?: string;
+  access_token: string;
+  token_type: string;
+  qr_code?: string; // QR para MFA
+  mfa_secret?: string; // Solo en debug
+  user: {
+    id: string;
+    username: string;
+    email: string;
   };
+  error?: string;
 }
 
 export interface RespuestaAutenticacion {
   success: boolean;
   error?: string;
   user?: {
-    id: number;
+    id: string;
     username: string;
     email?: string;
   };
+  token?: string;
+  qr_code?: string;
 }
 
 export interface AuthError {
-  proxied_response: {
-    error: string;
-  };
+  error: string;
 }
