@@ -13,22 +13,8 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
   
-  // Debug rápido: imprimir base URL (puedes removerlo tras verificar en consola de prod)
-  // Se ejecuta en la inicialización del servicio.
-  public debugBase(): void {
-    if (typeof window !== 'undefined' && (window as any).location) {
-      // Solo log en entorno navegador
-      // Evitar múltiples logs si el servicio se inyecta varias veces
-      if (!(window as any).__AUTH_BASE_LOGGED) {
-        // eslint-disable-next-line no-console
-        console.log('[AuthService] Base URL:', this.apiUrl, 'env.production=', environment.production);
-        (window as any).__AUTH_BASE_LOGGED = true;
-      }
-    }
-  }
-
-  // Llamar inmediatamente para registrar en consola
-  private _ = this.debugBase();
+  // Depuración opcional
+  private DEBUG_AUTH = false;
 
   register(userData: Usuario): Observable<{success: boolean, token?: string, user?: any, qr_code?: string, error?: string, code?: string}> {
     // Normalizar antes de enviar
@@ -37,20 +23,22 @@ export class AuthService {
       username: (userData.username || '').trim(),
       email: (userData.email || '').trim().toLowerCase()
     };
-    console.log('[AuthService] Enviando register ->', this.apiUrl + '/register', payload);
+    if (this.DEBUG_AUTH) console.log('[AuthService] Enviando register ->', this.apiUrl + '/register', payload);
   return this.http.post(`${this.apiUrl}/register`, payload, { observe: 'response', responseType: 'text' }).pipe(
       map(resp => {
         const status = resp.status;
         const bodyText = resp.body || '';
-        console.log('[AuthService] HTTP status:', status);
-        console.log('[AuthService] Cuerpo crudo:', bodyText);
+        if (this.DEBUG_AUTH) {
+          console.log('[AuthService] HTTP status:', status);
+          console.log('[AuthService] Cuerpo crudo:', bodyText);
+        }
         let parsed: any = null;
         try { parsed = bodyText ? JSON.parse(bodyText) : {}; } catch (e) {
-          console.warn('[AuthService] JSON parse fallo, cuerpo no JSON');
+          if (this.DEBUG_AUTH) console.warn('[AuthService] JSON parse fallo, cuerpo no JSON');
         }
         // Si gateway encapsula
         const response = parsed?.proxied_response ? parsed.proxied_response : parsed;
-        console.log('[AuthService] Parsed response:', response);
+        if (this.DEBUG_AUTH) console.log('[AuthService] Parsed response:', response);
         if (!response) {
           return { success: false, error: 'Respuesta vacía' };
         }
@@ -70,7 +58,7 @@ export class AuthService {
       catchError((error) => {
         const errorMsg = error.error?.error || 'Error al registrar usuario';
         const code = error.error?.code;
-        console.error('[AuthService] catchError raw:', error);
+        if (this.DEBUG_AUTH) console.error('[AuthService] catchError raw:', error);
         return of({ success: false, error: errorMsg, code });
       })
     );
