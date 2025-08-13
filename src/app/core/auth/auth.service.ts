@@ -37,37 +37,40 @@ export class AuthService {
       username: (userData.username || '').trim(),
       email: (userData.email || '').trim().toLowerCase()
     };
-  return this.http.post<any>(`${this.apiUrl}/register`, payload).pipe(
-      map(raw => {
-        debugger;
-        // Debug: mostrar crudo (eliminar después)
-        try { console.log('[AuthService] raw register response:', raw); } catch {}
-
-        // Unificar formato si viene anidado (proxied_response) o directo
-        const response = raw?.proxied_response ? raw.proxied_response : raw;
-
-        // Si backend indica error explícito
-        if (response && typeof response === 'object' && 'error' in response && !('access_token' in response || 'user' in response)) {
+    console.log('[AuthService] Enviando register ->', this.apiUrl + '/register', payload);
+  return this.http.post(`${this.apiUrl}/register`, payload, { observe: 'response', responseType: 'text' }).pipe(
+      map(resp => {
+        const status = resp.status;
+        const bodyText = resp.body || '';
+        console.log('[AuthService] HTTP status:', status);
+        console.log('[AuthService] Cuerpo crudo:', bodyText);
+        let parsed: any = null;
+        try { parsed = bodyText ? JSON.parse(bodyText) : {}; } catch (e) {
+          console.warn('[AuthService] JSON parse fallo, cuerpo no JSON');
+        }
+        // Si gateway encapsula
+        const response = parsed?.proxied_response ? parsed.proxied_response : parsed;
+        console.log('[AuthService] Parsed response:', response);
+        if (!response) {
+          return { success: false, error: 'Respuesta vacía' };
+        }
+        if (response.error && !response.user) {
           return { success: false, error: response.error, code: response.code };
         }
-
-        const user = response?.user;
-        const accessToken = response?.access_token || response?.token || null;
-        const qr = response?.qr_code || response?.qr || null;
-
-        // Criterio relajado: si hay user ya consideramos éxito (token opcional)
+        const user = response.user;
+        const accessToken = response.access_token || response.token || null;
+        const qr = response.qr_code || response.qr || null;
         if (user) {
-          if (accessToken) {
-            try { this.setToken(accessToken); } catch {}
-          }
-            try { localStorage.setItem('currentUser', JSON.stringify(user)); } catch {}
+          try { if (accessToken) this.setToken(accessToken); } catch {}
+          try { localStorage.setItem('currentUser', JSON.stringify(user)); } catch {}
           return { success: true, token: accessToken || undefined, user, qr_code: qr || undefined };
         }
-        return { success: false, error: 'Respuesta sin user' };
+        return { success: false, error: 'Sin campo user en respuesta', code: response.code };
       }),
       catchError((error) => {
         const errorMsg = error.error?.error || 'Error al registrar usuario';
         const code = error.error?.code;
+        console.error('[AuthService] catchError raw:', error);
         return of({ success: false, error: errorMsg, code });
       })
     );
