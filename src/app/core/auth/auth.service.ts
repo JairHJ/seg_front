@@ -12,6 +12,23 @@ export class AuthService {
   private apiUrl = environment.API_URL_GATEWAY + '/auth';
 
   constructor(private http: HttpClient) {}
+  
+  // Debug rápido: imprimir base URL (puedes removerlo tras verificar en consola de prod)
+  // Se ejecuta en la inicialización del servicio.
+  public debugBase(): void {
+    if (typeof window !== 'undefined' && (window as any).location) {
+      // Solo log en entorno navegador
+      // Evitar múltiples logs si el servicio se inyecta varias veces
+      if (!(window as any).__AUTH_BASE_LOGGED) {
+        // eslint-disable-next-line no-console
+        console.log('[AuthService] Base URL:', this.apiUrl, 'env.production=', environment.production);
+        (window as any).__AUTH_BASE_LOGGED = true;
+      }
+    }
+  }
+
+  // Llamar inmediatamente para registrar en consola
+  private _ = this.debugBase();
 
   register(userData: Usuario): Observable<{success: boolean, token?: string, user?: any, qr_code?: string, error?: string, code?: string}> {
     // Normalizar antes de enviar
