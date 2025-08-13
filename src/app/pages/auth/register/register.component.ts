@@ -265,6 +265,7 @@ export class RegisterComponent {
 
   onSubmit() {
     if (this.registerForm.valid) {
+      if (this.isLoading()) { return; } // prevenir doble submit rápido
       this.isLoading.set(true);
       this.errorMessage.set('');
 
@@ -289,7 +290,16 @@ export class RegisterComponent {
               }, 1500);
             }
           } else {
-            this.errorMessage.set(result.error || 'Error al registrar usuario');
+            // Mensajes específicos según código devuelto
+            if (result.code === 'USERNAME_EXISTS') {
+              this.errorMessage.set('El nombre de usuario ya está en uso');
+            } else if (result.code === 'EMAIL_EXISTS') {
+              this.errorMessage.set('El email ya está registrado');
+            } else if (result.code === 'USER_EXISTS') {
+              this.errorMessage.set('Usuario o email ya existe');
+            } else {
+              this.errorMessage.set(result.error || 'Error al registrar usuario');
+            }
           }
           this.isLoading.set(false);
         },

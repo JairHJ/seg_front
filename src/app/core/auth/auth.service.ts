@@ -12,11 +12,17 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  register(userData: Usuario): Observable<{success: boolean, token?: string, user?: any, qr_code?: string, error?: string}> {
-    return this.http.post<RegisterResponse>(`${this.apiUrl}/register`, userData).pipe(
+  register(userData: Usuario): Observable<{success: boolean, token?: string, user?: any, qr_code?: string, error?: string, code?: string}> {
+    // Normalizar antes de enviar
+    const payload = {
+      ...userData,
+      username: (userData.username || '').trim(),
+      email: (userData.email || '').trim().toLowerCase()
+    };
+    return this.http.post<RegisterResponse>(`${this.apiUrl}/register`, payload).pipe(
       map(response => {
         if (response.error) {
-            return { success: false, error: response.error };
+            return { success: false, error: response.error, code: (response as any).code };
         }
         if (response.access_token && response.user) {
           // Guardar token opcionalmente tras registro
@@ -33,7 +39,8 @@ export class AuthService {
       }),
       catchError((error) => {
         const errorMsg = error.error?.error || 'Error al registrar usuario';
-        return of({ success: false, error: errorMsg });
+        const code = error.error?.code;
+        return of({ success: false, error: errorMsg, code });
       })
     );
   }
