@@ -9,42 +9,67 @@ import { environment } from '../../../environments/environment';
 })
 export class TasksService {
   // Base via API Gateway unificado. Se incluye /tasks para simplificar.
-  private apiUrl = environment.API_URL_GATEWAY + '/tasks';
+  private apiUrl = (environment.API_URL_GATEWAY + '/tasks').replace('http://', 'https://');
 
-  constructor(private http: HttpClient) {}
+  private logBaseOnce() {
+    try {
+      if (typeof window !== 'undefined' && !(window as any).__TASKS_BASE_LOGGED) {
+        console.log('[TasksService] Base URL:', this.apiUrl, 'env.production=', environment.production);
+        (window as any).__TASKS_BASE_LOGGED = true;
+      }
+    } catch {}
+  }
+
+  constructor(private http: HttpClient) {
+    this.logBaseOnce();
+  }
 
   // Obtener todas las tareas (público, sin token)
   getAllTasks(): Observable<TaskResponse> {
-    return this.http.get<TaskResponse>(`${this.apiUrl}`);
+  const url = `${this.apiUrl}`;
+  console.log('[TasksService] GET all ->', url);
+  return this.http.get<TaskResponse>(url);
   }
 
   // Obtener tarea por ID (requiere token - interceptor lo maneja)
   getTaskById(id: string): Observable<TaskResponse> {
-    return this.http.get<TaskResponse>(`${this.apiUrl}/${id}`);
+  const url = `${this.apiUrl}/${id}`;
+  console.log('[TasksService] GET by id ->', url);
+  return this.http.get<TaskResponse>(url);
   }
 
   // Crear nueva tarea (requiere token - interceptor lo maneja)
   createTask(task: TaskCreateRequest): Observable<TaskResponse> {
-    return this.http.post<TaskResponse>(`${this.apiUrl}/register_task`, task);
+  const url = `${this.apiUrl}/register_task`;
+  console.log('[TasksService] POST create ->', url, task);
+  return this.http.post<TaskResponse>(url, task);
   }
 
   // Actualizar tarea (requiere token - interceptor lo maneja)
   updateTask(id: string, task: TaskCreateRequest): Observable<TaskResponse> {
-    return this.http.put<TaskResponse>(`${this.apiUrl}/update_task/${id}`, task);
+  const url = `${this.apiUrl}/update_task/${id}`;
+  console.log('[TasksService] PUT update ->', url, task);
+  return this.http.put<TaskResponse>(url, task);
   }
 
   // Eliminar tarea (requiere token - interceptor lo maneja)
   deleteTask(id: string): Observable<TaskResponse> {
-    return this.http.delete<TaskResponse>(`${this.apiUrl}/delete_task/${id}`);
+  const url = `${this.apiUrl}/delete_task/${id}`;
+  console.log('[TasksService] DELETE ->', url);
+  return this.http.delete<TaskResponse>(url);
   }
 
   // Deshabilitar tarea (requiere token - interceptor lo maneja)
   disableTask(id: string): Observable<TaskResponse> {
-    return this.http.put<TaskResponse>(`${this.apiUrl}/disable_task/${id}`, {});
+  const url = `${this.apiUrl}/disable_task/${id}`;
+  console.log('[TasksService] PUT disable ->', url);
+  return this.http.put<TaskResponse>(url, {});
   }
 
   // Habilitar tarea (requiere token - interceptor lo maneja)
   enableTask(id: string): Observable<TaskResponse> {
-    return this.http.put<TaskResponse>(`${this.apiUrl}/enable_task/${id}`, {});
+  const url = `${this.apiUrl}/enable_task/${id}`;
+  console.log('[TasksService] PUT enable ->', url);
+  return this.http.put<TaskResponse>(url, {});
   }
 }
